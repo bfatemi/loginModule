@@ -11,18 +11,25 @@
 
 library(shiny)
 
+source("loginModule.R")
+
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
   header = dashboardHeader(disable = TRUE),
   sidebar = dashboardSidebar(disable = TRUE),
+  
   body = dashboardBody(
-    
+    loginModuleUI("login")
   )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
+  callModule(loginModule, "login")
+  
+  hpds_encrypt("bobbyf")
+  hpds_encrypt("Newyork1")
   
 }
 
