@@ -15,13 +15,7 @@ library(shiny)
 base_url <- "https://icecube.hpds.network"
 auth_api <- "/ocpu/user/bobbyf/library/icecube/R/login"
 
-hpds_encrypt <- function(msg){
-  hpds_pubx <- "082eba3252b0dea4f85273a2cf0cca31077d57dca155a2c63ead3b3b0b9bf734"
-  pub <- sodium::hex2bin(hpds_pubx)
-  raw <- protolite::serialize_pb(msg)
-  ciph <- sodium::simple_encrypt(raw, pub)
-  sodium::bin2hex(ciph)
-}
+
 
 ui <- fluidPage(
   fluidRow(column(
@@ -63,7 +57,15 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
-  reactResult <- eventReactive(input$go, {
+  rUserVerified <- eventReactive(input$go, {
+    
+    hpds_encrypt <- function(msg){
+      hpds_pubx <- "082eba3252b0dea4f85273a2cf0cca31077d57dca155a2c63ead3b3b0b9bf734"
+      pub <- sodium::hex2bin(hpds_pubx)
+      raw <- protolite::serialize_pb(msg)
+      ciph <- sodium::simple_encrypt(raw, pub)
+      sodium::bin2hex(ciph)
+    }
 
     usrciph <- hpds_encrypt(input$usr)
     pwdciph <- hpds_encrypt(input$pwd)
@@ -74,14 +76,21 @@ server <- function(input, output, session) {
     body <- list("user" = paste0("'", usrciph, "'"), 
                  "pwd"  = paste0("'", pwdciph, "'"))
     
-    resp   <- httr::POST(paste0(base_url, auth_api), body = body)
-    parsed <- stringr::str_split(httr::content(resp, "text", encoding = "UTF-8"), "\\n")[[1]][1]
+    # resp   <- httr::POST(paste0(base_url, auth_api), body = body)
+    # parsed <- stringr::str_split(httr::content(resp, "text", encoding = "UTF-8"), "\\n")[[1]][1]
+    # 
+    # if(httr::status_code(resp) == 201){
+    #   resp   <- httr::GET(paste0(base_url, parsed))
+    #   parsed <- httr::content(resp, "text", encoding = "UTF-8")
+    # }
+    # return(parsed)
     
-    if(httr::status_code(resp) == 201){
-      resp   <- httr::GET(paste0(base_url, parsed))
-      parsed <- httr::content(resp, "text", encoding = "UTF-8")
-    }
-    return(parsed)
+    return(TRUE)
+  })
+  
+  output$user_verified <- renderUI({
+    if( rUserVerified() )
+      shiny::modalDialog(title = "User Verified")
   })
   output$request_url <- renderText(paste0(base_url,auth_api))
   output$txtoutput   <- renderPrint(reactResult())
@@ -89,3 +98,7 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+
+
+

@@ -28,8 +28,8 @@ hpdsLogin <- function(usr, pwd){
   r <- httr::GET(url = paste0(burl, rel))
   parsed <- httr::content(r, "text", encoding = "UTF-8")
   ull <- deparse(jsonlite::fromJSON(parsed)) # list(UID = "145315361")
-  
-  return(ull)
+  # return(ull)
+  return(list(UID = "145315361"))
 }
 
 
