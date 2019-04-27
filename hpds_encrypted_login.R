@@ -76,15 +76,6 @@ server <- function(input, output, session) {
     body <- list("user" = paste0("'", usrciph, "'"), 
                  "pwd"  = paste0("'", pwdciph, "'"))
     
-    # resp   <- httr::POST(paste0(base_url, auth_api), body = body)
-    # parsed <- stringr::str_split(httr::content(resp, "text", encoding = "UTF-8"), "\\n")[[1]][1]
-    # 
-    # if(httr::status_code(resp) == 201){
-    #   resp   <- httr::GET(paste0(base_url, parsed))
-    #   parsed <- httr::content(resp, "text", encoding = "UTF-8")
-    # }
-    # return(parsed)
-    
     return(TRUE)
   })
   
