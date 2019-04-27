@@ -10,15 +10,7 @@ library(hpdsConnect)
 
 apikey <- "018ec6a3d3927f773a0d1b0adf516fa36b300929"
 
-hpdsUserSearch <- function(username, apikey){
-  fun_url <- ocputils::ocpu_icecube_url("hpds_user_exists")
-  args <- ocputils::wrap_args(uciphx = ocputils::ocpu_cipher(username), keyx = apikey)
-  r <- httr::POST(fun_url, body = args)
-  value <- httr::GET(paste0(r$headers$location, "R/.val/json"))
-  parsed <- httr::content(value, as = "text", encoding = "UTF-8")
-  isusr <- jsonlite::fromJSON(jsonlite::parse_json(parsed)[[1]])
-  isTRUE(isusr)
-}
+
 
 # Module UI function
 loginModuleUI <- function(id, title = "Platform Access") {
