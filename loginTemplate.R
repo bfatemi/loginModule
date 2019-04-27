@@ -5,7 +5,21 @@ library(shinyWidgets)
 library(shinythemes)
 library(shinydashboard)
 
-apikey <- ""
+apikey <- "018ec6a3d3927f773a0d1b0adf516fa36b300929"
+
+hpdsUserSearch <- function(username, apikey){
+  fun_url <- ocputils::ocpu_icecube_url("hpds_user_exists")
+  args <- ocputils::wrap_args(uciphx = ocputils::ocpu_cipher(username), keyx = apikey)
+  r <- httr::POST(fun_url, body = args)
+  value <- httr::GET(paste0(r$headers$location, "R/.val/json"))
+  parsed <- httr::content(value, as = "text", encoding = "UTF-8")
+  isusr <- jsonlite::fromJSON(jsonlite::parse_json(parsed)[[1]])
+  isTRUE(isusr)
+}
+
+
+
+
 
 hpdsUserLogin <- function(usr, pwd){
   authFailed <- FALSE
@@ -26,10 +40,6 @@ hpdsLoginFailed <- function(usr, apikey){
   
 }
 
-
-hpdsUserFound <- function(usr){
-  return(TRUE)
-}
 
 hpdsConfirmPhone <- function(uid, apikey){
   
@@ -142,8 +152,9 @@ loginModule <- function(input, output, session) {
   observeEvent(input$btn_login, {
     
  
+    user_found <- hpdsUserSearch(input$usr, apikey)
     
-    if( hpdsUserFound(input$usr) ){
+    if( user_found ){
       
       userData <- hpdsUserLogin(input$usr, input$pwd)
       
@@ -158,6 +169,7 @@ loginModule <- function(input, output, session) {
         
       if( userData$enabled_2FA ){
         hash <- verify_send_sms(UID)
+        
         shinyalert(title = "Welcome", 
                    showCancelButton = TRUE, 
                    showConfirmButton = TRUE, 
@@ -179,14 +191,6 @@ loginModule <- function(input, output, session) {
                  closeOnClickOutside = TRUE, 
                  type = "error")
     }
-
-    
-    # r <- httr::GET(paste0(url_rotp, UID), head_authy)
-    # if( httr::status_code(r) != 200 ){
-    #   shinyalert("Oops!", "Login Failed", type = "error")
-    # }else{
-    #   showModal(modalTwoFactUI())
-    # }
   })
   
   ## VALIDATE SMS CODE
